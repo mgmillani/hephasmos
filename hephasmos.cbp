@@ -39,7 +39,6 @@
 		<Unit filename="include/directives.hpp" />
 		<Unit filename="include/expression.hpp" />
 		<Unit filename="include/file.hpp" />
-		<Unit filename="include/gopt.h" />
 		<Unit filename="include/instructions.hpp" />
 		<Unit filename="include/labels.hpp" />
 		<Unit filename="include/machine.hpp" />
@@ -57,9 +56,6 @@
 		<Unit filename="src/directives.cpp" />
 		<Unit filename="src/expression.cpp" />
 		<Unit filename="src/file.cpp" />
-		<Unit filename="src/gopt.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="src/instructions.cpp" />
 		<Unit filename="src/labels.cpp" />
 		<Unit filename="src/machine.cpp" />
