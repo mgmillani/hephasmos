@@ -1,0 +1,244 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+\hypersetup
+{
+	colorlinks=true,
+	linkcolor=blue
+}
+
+\lstset{
+	extendedchars=true,
+	inputencoding=utf8,
+	basicstyle=\small,
+	keywordstyle=\color{red}\bfseries,
+	%identifierstyle=\color{blue},
+	commentstyle=\color{gray}\textit,
+	stringstyle=\color{magenta},
+	showstringspaces=false,
+	%numbers=left,         % Números na margem da esquerda
+	%numberstyle=\tiny,    % Números pequenos
+	%stepnumber=1,         % De 1 em 1
+	%numbersep=5pt,         % Separados por 5pt
+	language=[LaTeX]TeX
+}
+
+\lstset
+{
+	literate={ê}{{\^e}}1 {ç}{{\c{c}}}1 {ã}{{\~a}}1 {â}{{\^a}}1 {õ}{{\~o}}1 {í}{{\'i}}1 {é}{{\'e}}1 {á}{{\'a}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+}
+
+\newcommand{\Enderecamentos} {\hyperref[endereçamentos]{Endereçamentos}}
+\newcommand{\Instrucoes} {\hyperref[instruções]{Instruções}}
+\newcommand{\Maquina} {\hyperref[máquina] {Máquina}}
+\newcommand{\Registradores} {\hyperref[registradores] {Registradores}}
+
+%opening
+\title{Especificação do Hidrasm}
+\author{PET Computação da UFRGS}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\section{Base}
+Para simplicidade, o programa do montador possui somente uma interface por linha de comando. Para integração com o simulador, a interface chama esse programa. Isso é feito para, caso deseje-se mudar o montador, não será necessário alterar o código fonte da interface ou do simulador.
+
+Cada máquina é especificada em um arquivo, o qual contém as seguintes seções:
+\begin{itemize}
+ \item \Enderecamentos
+ \item \Instrucoes
+ \item \Maquina
+ \item \Registradores
+\end{itemize}
+
+\section{Arquivo de Descrição}
+
+	\subsection{Endereçamentos}
+		\label{endereçamentos}
+		Descreve os modos de endereçamento de cada máquina, como o formato pelo qual é identificado, sobre quais tipos é válido e se é relativo ao PC ou não.
+		
+		\begin{description}
+		 \item [Identificador] addressings
+		 \item [Formato] \verb+<nome> [= | -] <código binário> <identificador> +
+		\end{description}
+		onde:
+		\begin{description}
+		 \item [nome] nome do modo de endereçamento (usado internamente). Pode ser qualquer sequência de caracteres a-z e A-Z;
+		 \item [= | -] Determina se o valor do endereço deve ser calculado em relação ao PC ou não. "=" indica que deve ser simplesmente copiado, "-" que é relativo ao PC. (Padrão: =);
+		 \item [código binário] número;
+		 \item [identificador] Expressão que identifica o modo de endereçamento. Somente um registrador ou endereço pode aparecer por expressão.
+		\end{description}
+
+		\subsection{Instruções}
+		\label{instruções}
+		Descreve qual o mnemônico, formato, modos de endereçamento e registradores possíveis para cada instrução.
+		
+		\begin{description}
+		 \item [Identificador] instructions
+		 \item [Formato] <tamanho> <mnemônico> <operandos> <endereçamento0, \dots> < <registrador0, \dots> | - | *> <formato binário>
+		\end{description}
+		onde:
+		\begin{description}
+		 \item [tamanho] número de bits da instrução;
+		 \item [mnemônico] qualquer sequência dos caracteres a-z e A-Z (case insensitive);
+		 \item [operandos] Expressão que indica como os operandos da instrução devem aparecer. Uma expressão sem variáveis será ignorada e indicará que nenhum operando deve ser utilizado;
+		 \item [endereçamento0 \dots] quais modos de endereçamento podem ser usados com essa instrução. * indica qualquer um;
+		 \item [formato binário] como que a instrução é montada. São usados os símbolos:
+			\begin{description}
+			 \item [a{[[n]][(m)]}] n-ésimo endereço (se o n não for informado, são colocados na ordem em que aparecem). m indica quantos bits terá o endereço, sendo desnecessário quando há somente um endereço no formato. Se houver mais de um endereço na expressão, todos usarão o mesmo número de bits caso este não seja informado;
+			 \item [m{[n]}] n-ésimo modo de endereçamento (se o n não for informado, são colocados na ordem em que aparecem);
+			 \item [r{[n]}]  n-ésimo registrador (se o n não for informado, são colocados na ordem em que aparecem);
+			 \item [0] bit 0;
+			 \item [1] bit 1;
+			 \item [qualquer outro caractere] ignorado
+			\end{description}
+		\end{description}
+		
+		\subsubsection{Exemplo}
+			\verb+16 ADD a d - 0011000ma[0](8)+
+
+	\subsection{Máquina}
+		\label{máquina}
+		Descrever diversos aspectos da máquina, como tamanho do PC e a endianness usada.
+		\begin{description}
+		 \item [Identificador] machine
+		 \item [Formato] <little-endian | big-endian> <bits do PC>
+		\end{description}
+		onde:
+		\begin{description}
+		 \item [little-endian | big-endian] endianness usada;
+		 \item [bits do pc] quantos bits o PC possui (determina o tamanho máximo da memória).
+		\end{description}
+
+		\subsubsection{Exemplo}
+			little-endian 8
+			
+	\subsection{Registradores}
+		\label{registradores}
+		
+		Descreve cada registrador usado pela máquina que pode aparecer no código assembly, definindo seu identificador.
+		\begin{description}
+		 \item [Identificador] registers
+		 \item [Formato] <nome> <valor>
+		\end{description}
+		onde:
+		\begin{description}
+		 \item [nome] nome do registrador (para o código Assembly).
+		 \item [valor] número que indica o valor do registrador (para o código de máquina)
+		\end{description}
+
+		\subsubsection{Exemplo}
+			R0 0b
+			
+\section{Expressão}
+\label{expressão}
+Uma expressão identifica um padrão de forma similar a uma expressão regular. São usados os símbolos: 
+
+\begin{description}
+	\item [r] registrador 
+	\item [n] endereço numérico 
+	\item [l] label 
+	\item [a] n ou l 
+	\item [o] qualquer um dos acima (o de operando) 
+	\item [\textbackslash] caractere de escape 
+	\item [] qualquer outro caractere indica algum que deve aparecer na frase
+\end{description}
+
+As variáveis identificadas podem ter somente os caracteres em a-zA-Z0-9 e \_ . Elas devem estar separadas por um caractere em branco se a expressão exigir algum dos caracteres que as compõem (ver exemplo). 
+
+Ao ler uma expressão, espaços entre os caracteres são ignorados. Por isso, uma expressão não pode conter espaços (se contiver, estes serão ignorados).
+
+	\subsection{Exemplo}
+	As seguintes frases satisfazem "(as),a":
+	\begin{itemize}
+		\item "(125 s),red" (match de 125 e red) 
+		\item " ( reds s) , 125" (match de reds e 125)
+	\end{itemize}
+	
+	As seguintes frases não satisfazem "(as),a": 
+	\begin{itemize}
+		\item "1(24 s),red" 
+		\item "(reds),32" 
+		\item "((red s),32"
+	\end{itemize}
+
+\section{Números}
+São suportados números nas seguintes bases:
+\begin{description}
+	\item [binário] seguido de um "b" ou "B" 
+	\item [decimal] seguido de um "d" ou "D" ou nada 
+	\item [hexadecimal] precedido por um algarismo e seguido de um "h" ou "H". Os caracteres dos número podem ser minúsculos ou maiúsculos.
+	
+	\subsection{Exemplos}
+	\begin{description}
+	 \item [010b] 2
+	 \item [010] 10
+	 \item [010d] 10
+	 \item [010h] 16
+	 \item [ah] Não corresponde a um número válido
+	\end{description}
+
+\end{description}
+
+
+			
+\section{Erros e Avisos}
+
+As mensagens de erro e os avisos estarão em um arquivo separado, de forma a facilitar eventuais traduções do programa além de permitir diferentes níveis de rigidez para os erros.
+
+	\subsection{Arquivo}
+		\begin{description}
+			\item [Formato] <código> <e | w> <mensagem>
+		\end{description}
+		onde:
+		\begin{description}
+			\item [código] número da mensagem
+			\item [e] erro
+			\item [w] aviso
+			\item [mensagem] a mensagem que será usada.
+		\end{description}
+		
+		Comentários são feitos com o símbolo '\#'.
+		
+		\subsubsection{Variáveis}
+			Para que o usuário possua mais informações, as mensagens podem conter variáveis que descrevem a linha em que ocorreu o problema. São elas:
+			
+			\begin{description}
+				\item [ADDRESSING\_MODE] modo de endereçamento usado; 
+				\item [DISTANCE] valor, em bytes, do último endereço relativo ao PC (sem truncamentos);
+				\item [EXPECTED\_OPERANDS] número de operandos esperado pela diretiva ou instrução;
+				\item [FOUND\_OPERANDS] número de operandos encontrados;
+				\item [LABEL] nome da label;
+				\item [LAST\_ORG\_LINE] número da linha do último ORG encontrado;
+				\item [LINE] a linha atual do código;
+				\item [MNEMONIC] mnemônico da instrução ou diretiva;
+				\item [OPERAND\_SIZE] valor máximo que o operando pode assumir.
+			\end{description}
+	
+	\subsubsection{Exemplo}
+	\begin{lstlisting}
+#Erros 
+
+(1) 0 e Instrução ou diretiva desconhecida: $MNEMONIC 
+(2) 1 e Número incorreto de operandos: esperava-se 
+$EXPECTED_OPERANDS, encontrou-se $FOUND_OPERANDS 
+(3) 2 e Endereço relativo ao PC muito grande: 
+$LABEL está a uma distância de $DISTANCE bytes do
+PC, mas o máximo possível são $OPERAND_SIZE bytes
+(4) #Avisos
+(5)
+(6) 3 w Região possivelmente sobrescrita a partir
+da linha $LAST_ORG_LINE
+(7) 4 w Modo de endereçamento desconhecido: 
+$ADDRESSING_MODE		 
+	\end{lstlisting}
+	
+	onde os números entre {()} indicam as linhas no arquivo
+
+\end{document}

@@ -1,0 +1,29 @@
+[machine]
+	big-endian 8 ahmes
+[addressings]
+	direto = 0 o
+[instructions]
+	08 NOP -    -   - 0000.0000
+	16 STA a direto - 0001.0000a
+	16 LDA a direto - 0010.0000a
+	16 ADD a direto - 0011.0000a
+	16 OR  a direto - 0100.0000a
+	16 AND a direto - 0101.0000a
+	08 NOT -    -   - 0110.0000
+	16 SUB a direto - 0111.0000a
+	16 JMP a direto - 1000.0000a
+	16 JN  a direto - 1001.0000a
+	16 JP  a direto - 1001.0100a
+	16 JV  a direto - 1001.1000a
+	16 JNV a direto - 1001.1100a
+	16 JZ  a direto - 1010.0000a
+	16 JNZ a direto - 1010.0100a
+	16 JC  a direto - 1011.0000a
+	16 JNC a direto - 1011.0100a
+	16 JB  a direto - 1011.1000a
+	16 JNB a direto - 1011.1100a
+	08 SHR -    -   - 1110.0000
+	08 SHL -    -   - 1110.0001
+	08 ROR -    -   - 1110.0010
+	08 ROL -    -   - 1110.0011
+	08 HLT -    -   - 1111.0000
