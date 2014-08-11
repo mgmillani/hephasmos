@@ -192,7 +192,8 @@ e_numType Number::numberType(string n)
 		case 'D':
 			end--;
 			int i;
-			for(i=end; i >begin ; i--)
+			unsigned int j;
+			for(i=end,j = begin; j < end ; i--,j++)
 			{
 				if(n[i]<'0' || n[i]>'9')
 					return INVALID;
@@ -205,7 +206,7 @@ e_numType Number::numberType(string n)
 		case 'b':
 		case 'B':
 			end--;
-			for(i=end; i >begin ; i--)
+			for(i=end,j = begin; j < end ; i--,j++)
 			{
 				if(n[i]<'0' || n[i]>'1')
 					return INVALID;
@@ -229,7 +230,6 @@ e_numType Number::numberType(string n)
 				else
 					return INVALID;
 			}
-			//if(n[begin]=='-' || (n[begin]>='0' && n[begin]<='9') || (n[i]>='A' && n[i]<='F') || (n[i]>='a' && n[i]<='f'))
 			if(prefixed)
 			{
 				if((n[begin]>='0' && n[begin]<='9') || (n[i]>='A' && n[i]<='F') || (n[i]>='a' && n[i]<='f'))

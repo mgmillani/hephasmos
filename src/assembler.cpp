@@ -404,7 +404,7 @@ void Assembler::createSymTable(FILE *fl)
 			largest = it->name.size();
 	}
 
-	unsigned int margin = 8;
+	//unsigned int margin = 8;
 
 	for(it=lst.begin() ; it!=lst.end() ; it++)
 	{
