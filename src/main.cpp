@@ -26,6 +26,8 @@
 
 #include "debug.hpp"
 
+#define ANY(a,b,c) (strcmp(a,b)==0 || strcmp(a,c)==0)
+
 using namespace std;
 
 bool openFile(const char *fname, FILE **fl, const char *mode)
@@ -46,7 +48,6 @@ int cmp(int *a, int *b)
 
 int main(int argc,char *argv[])
 {
-	bool help = false;
 	bool failed = false;
 	int exitValue = 0;
 
@@ -58,6 +59,9 @@ int main(int argc,char *argv[])
 	FILE *machine = NULL;
 	FILE *messages = NULL;
 	unsigned int version = 0;
+	bool nonhuman = false;
+	bool help = false;
+	bool showVersion = false;
 
 	char *versionNames[] = {"daedalus","mecaria0"};
 	int versionNumbers[] = {3,0};
@@ -65,56 +69,110 @@ int main(int argc,char *argv[])
 
 	int i;
 	//parses the command line arguments
-	for(i=1;i<argc;i++)
+	char *opt;
+	for(i=1 ; i<argc-1 ; i++)
 	{
-		char *opt = argv[i];
-		char *left = strtok(opt,"=");
-		char *right = strtok(NULL,"");
-		bool opened = true;
+		opt = argv[i];
 		FILE *file = NULL;
+		bool opened = true;
 
-		if(strcmp(left,"source") == 0)
-			file = source = fopen(right,"rb");
-		else if(strcmp(left,"output") == 0)
-			file = output = fopen(right,"wt");
-		else if(strcmp(left,"warnings") == 0)
-			file = warnings = fopen(right,"wt");
-		else if(strcmp(left,"errors") == 0)
-			file = errors = fopen(right,"wt");
-		else if(strcmp(left,"symbols") == 0)
-			file = symbols = fopen(right,"wt");
-		else if(strcmp(left,"machine") == 0)
-			file = machine = fopen(right,"rb");
-		else if(strcmp(left,"messages") == 0)
-			file = messages = fopen(right,"rb");
-		else if(strcmp(left,"version") == 0)
+		if(ANY(opt,"--errors","-e"))
+			file = errors = fopen(argv[++i],"wb");
+		else if(ANY(opt,"--input","-i"))
+			file = source = fopen(argv[++i],"rb");
+		else if(ANY(opt,"--machine","-m"))
+			file = machine = fopen(argv[++i],"rb");
+		else if(ANY(opt,"--non-human","-n"))
+		{
+			nonhuman = true;
+			opened = false;
+		}
+		else if(ANY(opt,"--messages","-g"))
+			file = messages = fopen(argv[++i],"rb");
+		else if(ANY(opt,"--output","-o"))
+			file = output = fopen(argv[++i],"wb");
+		else if(ANY(opt,"--symbols","-s"))
+			file = symbols = fopen(argv[++i],"wb");
+		else if(ANY(opt,"--type","-t"))
 		{
 			opened = false;
-			//finds the version number
-			unsigned int i;
-
-			void *key = bsearch(&right, versionNames, numVersions , sizeof(*versionNames), (int (*)(const void*, const void*)) ( (int (*)(const char**, const char**))stringCaselessCompare));
+			//finds the version name
+			char *value = argv[++i];
+			void *key = bsearch(&value, versionNames, numVersions , sizeof(*versionNames), (int (*)(const void*, const void*)) ( (int (*)(const char**, const char**))stringCaselessCompare));
 
 			if(key == NULL)
 			{
-				ERR("'%s' is not a valid version name.",right);
+				ERR("'%s' is not a valid output type.",value);
 				failed = true;
-				help = true;
 			}
 			else
-				version = versionNumbers[(char *)versionNames - (char *)key];
+				version = versionNumbers[ ((char *)key - (char *)versionNames) / sizeof(key)];
+		}
+		else if(ANY(opt,"--warnings","-w"))
+			file = warnings = fopen(argv[++i],"wb");
+		else if(ANY(opt,"--help","-h"))
+		{
+			help = true;
+			opened = false;
+		}
+		else if(ANY(opt,"--version","-v"))
+		{
+			opened = false;
+			showVersion = true;
 		}
 		else
 		{
-			ERR("Invalid option: %s\n",left);
-			help = true;
+			ERR("Invalid option: %s\n",opt);
 			opened = false;
 			failed = true;
 		}
 
 		if(file == NULL && opened)
 		{
-			ERR("Failed to open:'%s' (%d)\n",right,errno);
+			ERR("Failed to open:'%s' (%d)\n",argv[i],errno);
+			failed = true;
+		}
+	}
+
+	if( i<argc)
+	{
+		opt = argv[argc-1];
+		bool needArg = false;
+		// last option does not have an argument
+		if(ANY(opt,"--errors","-e"))
+			needArg = true;
+		else if(ANY(opt,"--input","-i"))
+			needArg = true;
+		else if(ANY(opt,"--machine","-m"))
+			needArg = true;
+		else if(ANY(opt,"--non-human","-n"))
+			nonhuman = true;
+		else if(ANY(opt,"--messages","-g"))
+			needArg = true;
+		else if(ANY(opt,"--output","-o"))
+			needArg = true;
+		else if(ANY(opt,"--symbols","-s"))
+			needArg = true;
+		else if(ANY(opt,"--type","-t"))
+			needArg = true;
+		else if(ANY(opt,"--warnings","-w"))
+			needArg = true;
+		else if(ANY(opt,"--help","-h"))
+			help = true;
+		else if(ANY(opt,"--version","-v"))
+		{
+			needArg = false;
+			showVersion = true;
+		}
+		else
+		{
+			ERR("Invalid option: %s\n",opt);
+			failed = true;
+		}
+
+		if(needArg)
+		{
+			ERR("Option %s expects an argument, but none was given.\n",opt);
 			failed = true;
 		}
 	}
@@ -122,25 +180,28 @@ int main(int argc,char *argv[])
 	//shows help message
 	if(help)
 	{
-		ERR("\n\nusage: hidrassembler [OPTIONS...] machine=<machine> messages=<messages>\n");
-		ERR("where:\n");
-		ERR("machine=<machine>\tloads the specifications for the assembler from the file <machine>\n");
-		ERR("messages=<messages>\tloads errors and warnings from <messages>\n");
-		ERR("\navailable options:\n");
-		ERR("source=<filename>\t source file <filename> will be used instead of stdin\n");
-		ERR("output=<filename>\t generated binary will be written to <filename> instead of stdout\n");
-		ERR("warnings=<filename>\t generated warnings will be written to <filename> instead of stderr\n");
-		ERR("errors=<filename>\t generated errors will be written to <filename> instead of stderr\n");
-		ERR("symbols=<filename>\t defined symbols will be written to <filename>\n");
-		ERR("version=<name>\t creates a binary file for the <name> version. Available values: Daedalus, Mecamiria0\n");
+		ERR("\nusage: hephasmos [OPTIONS...] --machine FILE --messages FILE\n");
+		ERR("\noptions:\n");
+		ERR("-h,--help          \tExplains how to use the program and exits\n");
+		ERR("-v,--version       \tExplains how to use the program and exits\n");
+		ERR("-e,--errors FILE   \tWhere will error messages be written to. (default: standard error)\n");
+		ERR("-i, --input FILE   \tSource file (default: standard input)\n");
+		ERR("-m, --machine FILE \tFile which describes the machine (required)\n");
+		ERR("-g, --messages FILE\tFile containing error and warning messages (required)\n");
+		ERR("-n, --non-human    \tIf set, error messages will be printed one perline, and will not be escaped\n");
+		ERR("-o, --output FILE  \tOutput file, with the assembled source code (default: standard output)\n");
+		ERR("-s, --symbols FILE \tSymbols file (default: none)\n");
+		ERR("-t, --type NAME    \tType of output file. Possible values: ");
+		for(int i=0 ; i<numVersions-1 ; i++)
+			ERR("%s, ", versionNames[i]);
+		ERR("%s\n", versionNames[numVersions-1]);
+		ERR("-w, --warnings FILE\tWhere will warning messages be written to (default: standard error)\n");
 	}
 	// assembles the source code
 	else if(machine != NULL && messages != NULL && !failed)
 	{
-		Messenger messenger(messages,warnings,errors);
+		Messenger messenger(messages,warnings,errors,nonhuman);
 		Assembler assembler(machine,messenger);
-
-		// assembler.print(stderr);
 
 		int size;
 		char *codeP = fileRead(source,&size,1);
@@ -165,7 +226,7 @@ int main(int argc,char *argv[])
 
 		free(codeP);
 	}
-	else
+	else if(!showVersion)
 	{
 		if(machine == NULL)
 			ERR("Error: the machine was not specified\n");
