@@ -65,14 +65,14 @@ class Messenger
 	/**
 	  *	inicializa sem nenhuma mensagem
 	  */
-	Messenger(FILE *warningStream = stderr, FILE *errorStream = stderr);
+	Messenger(FILE *warningStream = stderr, FILE *errorStream = stderr, bool nonhuman = false);
 	/**
 	  * carrega as mensagens e inicializa
 	  */
-	Messenger(const char *filename,FILE *warningStream = stderr, FILE *errorStream = stderr);
-	Messenger(FILE *filename,FILE *warningStream = stderr, FILE *errorStream = stderr);
+	Messenger(const char *filename,FILE *warningStream = stderr, FILE *errorStream = stderr, bool nonhuman = false);
+	Messenger(FILE *filename,FILE *warningStream = stderr, FILE *errorStream = stderr, bool nonhuman = false);
 
-	void init(FILE *fl,FILE *warningStream, FILE *errorStream);
+	void init(FILE *fl,FILE *warningStream, FILE *errorStream, bool nonhuman);
 
 	~Messenger();
 
@@ -107,10 +107,12 @@ class Messenger
 
 	map<unsigned int, t_message> msgs;
 
-	map<string,string> variables;	//associa cada variavel a seu valor
+	map<string,string> variables;  //associa cada variavel a seu valor
+	map<string,string> escapes;    //escape sequences
 
 	unsigned int errors;
 	unsigned int warnings;
+	bool nonhuman;	//whether it is a human or not that is calling the program
 
 	FILE *errorStream;
 	FILE *warningStream;

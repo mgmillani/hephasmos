@@ -123,7 +123,7 @@ class Assembler
 	/**
 	  * recalcula o valor das labels, retornando uma nova lista de operandos
 	  */
-	list<t_operand> recalculateOperands(list<t_operand> operands,t_status *status,unsigned int pos);
+	list<t_operand> recalculateOperands(list<t_operand> operands,t_status *status, unsigned int pos);
 
 };
 

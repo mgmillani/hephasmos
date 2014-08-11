@@ -39,12 +39,17 @@ using namespace std;
 /**
 *	inicializa sem nenhuma mensagem
 */
-Messenger::Messenger(FILE *warningStream, FILE *errorStream)
+Messenger::Messenger(FILE *warningStream, FILE *errorStream, bool nonhuman)
 {
 	this->errorStream = errorStream;
 	this->warningStream = warningStream;
 	this->msgs = map<unsigned int,t_message>();
 	this->variables = map<string,string>();
+	this->escapes = map<string,string>();
+	this->escapes["\\n"] = "\n";
+	this->escapes["\\t"] = "\t";
+	this->escapes["\\r"] = "\r";
+	this->nonhuman = nonhuman;
 
 	this->errors = 0;
 	this->warnings = 0;
@@ -58,32 +63,34 @@ Messenger::~Messenger()
 /**
 *	inicializa e carrega as mensagens do arquivo
 */
-Messenger::Messenger(FILE *fl,FILE *warningStream, FILE *errorStream)
+Messenger::Messenger(FILE *fl,FILE *warningStream, FILE *errorStream,bool nonhuman)
 {
-	this->init(fl,warningStream,errorStream);
+	this->init(fl,warningStream,errorStream,nonhuman);
 }
 
 /**
 *	inicializa e carrega as mensagens do arquivo
 */
-Messenger::Messenger(const char *filename,FILE *warningStream, FILE *errorStream)
+Messenger::Messenger(const char *filename,FILE *warningStream, FILE *errorStream, bool nonhuman)
 {
 	FILE *fl = fopen(filename,"rb");
-	this->init(fl,warningStream,errorStream);
+	this->init(fl,warningStream,errorStream,nonhuman);
 	fclose(fl);
 
 }
 
-void Messenger::init(FILE *fl,FILE *warningStream, FILE *errorStream)
+void Messenger::init(FILE *fl,FILE *warningStream, FILE *errorStream,bool nonhuman)
 {
 	this->errorStream = errorStream;
 	this->warningStream = warningStream;
 
+	this->nonhuman = nonhuman;
 	this->msgs = map<unsigned int,t_message>();
 	this->variables = map<string,string>();
-	this->variables["\\n"] = "\n";
-	this->variables["\\t"] = "\t";
-	this->variables["\\r"] = "\r";
+	this->escapes = map<string,string>();
+	this->escapes["\\n"] = "\n";
+	this->escapes["\\t"] = "\t";
+	this->escapes["\\r"] = "\r";
 	this->errors = 0;
 	this->warnings = 0;
 	this->load(fl);
@@ -151,7 +158,10 @@ void Messenger::load(FILE *filename)
 
 			//o restante da linha eh a mensagem
 			t_message msg;
-			msg.message = line.substr(i,line.size()-i);
+			if(this->nonhuman)
+				msg.message = line.substr(i,line.size()-i);
+			else
+				msg.message = stringReplaceAll(line.substr(i,line.size()-i),this->escapes);
 			msg.error = error;
 
 			this->msgs.insert(pair<unsigned int,t_message>(num,msg));
