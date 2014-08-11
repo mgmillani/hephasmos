@@ -1,3 +1,4 @@
+INSTALLDIR="$(HOME)/bin"
 CC = g++
 CFLAGS = -Wall -Wextra -I$(INC)
 SRC = src
@@ -8,13 +9,19 @@ LIB = -lboost_regex
 OBJECTS = $(OBJ)/main.o $(OBJ)/directives.o $(OBJ)/addressings.o $(OBJ)/registers.o $(OBJ)/instructions.o $(OBJ)/machine.o $(OBJ)/labels.o $(OBJ)/memory.o $(OBJ)/stringer.o $(OBJ)/numbers.o $(OBJ)/sha1.o $(OBJ)/messenger.o $(OBJ)/expression.o $(OBJ)/multiExpression.o $(OBJ)/assembler.o $(OBJ)/file.o $(OBJ)/operands.o $(OBJ)/types.o
 NAME = hephasmos
 
-all: release
+all: release obj
 
-release: CFLAGS += -s -O3
+obj:
+	mkdir obj
+
+release: CFLAGS += -s -O2 -D TRACE_OFF
 release: assembler
 
 debug: CFLAGS += -g
 debug: assembler
+
+install: all
+	cp "$(BIN)/$(NAME)" "$(INSTALLDIR)/$(NAME)"
 
 assembler: $(OBJECTS)
 	$(CC) $(CFLAGS) $(OBJECTS) $(LIB) -o $(BIN)/$(NAME)
