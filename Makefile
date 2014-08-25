@@ -1,4 +1,4 @@
-INSTALLDIR="$(HOME)/bin"
+INSTALLDIR=$(HOME)/bin
 CC = g++
 CFLAGS = -Wall -Wextra -I$(INC)
 SRC = src
