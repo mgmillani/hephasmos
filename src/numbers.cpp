@@ -184,6 +184,8 @@ e_numType Number::numberType(string n)
 	else
 		d = n[end];
 
+	int i;
+	unsigned int j;
 	switch(d)
 	{
 		default:
@@ -191,8 +193,6 @@ e_numType Number::numberType(string n)
 		case 'd':
 		case 'D':
 			end--;
-			int i;
-			unsigned int j;
 			for(i=end,j = begin; j < end ; i--,j++)
 			{
 				if(n[i]<'0' || n[i]>'9')
@@ -242,6 +242,9 @@ e_numType Number::numberType(string n)
 				return INVALID;
 			break;
 	}
+
+	// unreachable
+	return INVALID;
 }
 
 
@@ -253,7 +256,7 @@ e_numType Number::numberType(string n)
 void Number::convertDigits(string n, unsigned char *values,e_numType type)
 {
 	int min = 0;
-	int i;
+	int i,j;
 	int max = n.size()-1;
 	switch(type)
 	{
@@ -281,14 +284,14 @@ void Number::convertDigits(string n, unsigned char *values,e_numType type)
 			if(n[0] == '-')
 				min=1;
 
-			for(i=min ; i<max ; i++)
+			for(i=min,j=0 ; i<max ; i++,j++)
 			{
 				if(n[i]>='0' && n[i]<='9')
-					values[i] = n[i] - '0';
+					values[j] = n[i] - '0';
 				else if(n[i]>='A' && n[i]<='F')
-					values[i] = n[i] - 'A' + 10;
+					values[j] = n[i] - 'A' + 10;
 				else
-					values[i] = n[i] - 'a' + 10;
+					values[j] = n[i] - 'a' + 10;
 			}
 			break;
 		default:
@@ -308,7 +311,6 @@ void Number::convertDigits(string n, unsigned char *values,e_numType type)
   */
 int Number::toInt(string n)
 {
-	//TRACE("start");
 	int base = 2;
 	int power = 1;
 	int end = n.size()-1;
@@ -359,7 +361,6 @@ int Number::toInt(string n)
 	if(negative)
 		val = -val;
 
-	//TRACE("finish");
 	return val;
 }
 
@@ -436,8 +437,10 @@ string Number::toBin()
 {
 
 	unsigned int size = 8*this->numDigits+2;
+	size = size < 3 ? 3 : size;
 	char *digits = (char *)malloc(size);
 	unsigned int i,pos = size-3;
+	digits[0] = '0';
 	for(i=0 ; i<this->numDigits ; i++)
 	{
 		unsigned int j;
@@ -528,7 +531,8 @@ string Number::getMinDigits(string n)
 {
 	unsigned int i = 0;
 	bool negative = false;
-	if(n[0] == '-')
+	char first = toupper(n[0]);
+	if(n[0] == '-' || first == 'H')
 	{
 		negative = true;
 		i++;
@@ -538,17 +542,20 @@ string Number::getMinDigits(string n)
 		if(n[i] != '0')
 			break;
 	}
+
 	string result;
+	unsigned int b = i;
+	unsigned int e = n.size()-1;
 	char last = toupper(n[n.size()-1]);
-	char first = toupper(n[0]);
-	//se o ultimo caractere indicar a base
-	if(last == 'D' || last == 'B' || last == 'H')
-		result = n.substr(i,n.size()-i-1);
-	// if the first character indicates the base
-	else if(first == 'H')
-		result = n.substr(i+1,n.size()-i-1);
+
+	// if the last character indicates the base and the number is not zero
+	if( (last == 'D' || last == 'B' || last == 'H'))
+		e--;
+
+	if(b <= e)
+		result = n.substr(b,e-b+1);
 	else
-		result = n.substr(i,n.size()-i);
+		return "0";
 
 	if(negative)
 		return "-" + result;
@@ -599,9 +606,12 @@ unsigned char *Number::toByteArray(string n, unsigned int *size)
 
 	int first=0;
 	int last = n.size()-1;
+	char end = toupper(n[last]);
 	if(n[0] == '-')
 		first=1;
-	if(n[last] <'0' || n[last]>'9')
+	if(type == PRE_HEXADECIMAL)
+		first++;
+	else if(end == 'H' || end == 'B')
 		last--;
 
 	int len = last-first+1;
@@ -634,10 +644,14 @@ unsigned char *Number::toByteArray(string n, unsigned int *size)
 			{
 				char shift;
 				for(shift=0, i=n.size()-2 -byte*2; shift<=4 && i>=0 ; i--,shift+=4)
+				{
 					number[byte] |= values[i]<<shift;
+				}
 			}
 
 			break;
+		default:
+			return NULL;
 	}
 
 	*size = max;
