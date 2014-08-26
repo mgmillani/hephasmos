@@ -1,0 +1,39 @@
+; instruction set
+nop
+add
+sub
+and
+or
+clr
+not
+neg
+inc
+dec
+asr
+asl
+ror
+rol
+sz
+snz
+spl
+smi
+spz
+smz
+seq
+sne
+sgr
+sls
+sge
+sle
+rts
+psh 128
+pop 128
+jmp 128
+jsr 128
+htl
+
+; addressings
+pop 128
+pop 128,i
+pop #128
+pop 128,p

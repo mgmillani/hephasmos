@@ -1,0 +1,12 @@
+; IS
+nop
+sta 0bbh
+lda 0bbh
+add 0bbh
+or 0bbh
+and 0bbh
+not
+jmp 0bbh
+jn 0bbh
+jz 0bbh
+hlt

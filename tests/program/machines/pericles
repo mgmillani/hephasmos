@@ -1,0 +1,40 @@
+[registers]
+	A 0
+	B 1
+[machine]
+	big-endian 12 pericles
+[addressings]
+	direto = 00b o
+	reg    = 00b r
+	indireto = 01b a,i
+	imediato = 10b #a
+	indexado = 11b a,x
+[instructions]
+	08 NOP -  - - 0000.0000
+	#modo imediato: operando com 8 bits
+	16 STR ra reg,imediato * 0001.0rm[1]a
+	16 LDR ra reg,imediato * 0010.0rm[1]a
+	16 ADD ra reg,imediato * 0011.0rm[1]a
+	16 OR  ra reg,imediato * 0100.0rm[1]a
+	16 AND ra reg,imediato * 0101.0rm[1]a
+	08 NOT r   reg         * 0110.0r00
+	16 JMP a  reg,imediato * 1000.11ma
+	16 JN  a  reg,imediato * 1001.11ma
+	16 JZ  a  reg,imediato * 1010.11ma
+	16 JC  a  reg,imediato * 1011.11ma
+	16 JSR a  reg,imediato * 1100.11ma
+	08 NEG r   reg         * 1101.0r00
+	08 SHR r   reg         * 1110.0r00
+	08 HLT -      -    -     1111.1100
+
+	#outros modos: 12 bits
+	24 STR ra  *    * 0001.0rm[1]a
+	24 LDR ra  *    * 0010.0rm[1]a
+	24 ADD ra  *    * 0011.0rm[1]a
+	24 OR  ra  *    * 0100.0rm[1]a
+	24 AND ra  *    * 0101.0rm[1]a
+	24 JMP a   *    * 1000.11ma
+	24 JN  a   *    * 1001.11ma
+	24 JZ  a   *    * 1010.11ma
+	24 JC  a   *    * 1011.11ma
+	24 JSR a   *    * 1100.11ma

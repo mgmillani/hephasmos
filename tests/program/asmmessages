@@ -1,0 +1,12 @@
+#Erros
+0 e ERRO (linha $LINE):\n\t
+1 w AVISO (linha $LINE):\n\t
+2 e Instrução ou diretiva desconhecida: '$MNEMONIC'
+3 e '$FOUND_OPERANDS' não é um operando correto para $MNEMONIC.\n\t Esperava-se '$OPERAND_FORMAT'
+4 e Endereço relativo ao PC muito grande: $LABEL está a uma distância de $DISTANCE bytes do PC, mas o máximo possível é $OPERAND_SIZE bytes
+5 e Modo de endereçamento desconhecido: '$ADDRESSING_MODE'
+6 e Label '$LABEL' redefinida. Primeira definição: linha $FIRST_DEFINITION
+7 e Label '$LABEL' não definida
+#Avisos
+8 w Região sobrescrita por causa da linha $LAST_ORG_LINE
+9 w Label '$LABEL' definida mas não utilizada

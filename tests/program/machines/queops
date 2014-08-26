@@ -1,0 +1,20 @@
+[machine]
+	little-endian 8 queops
+[addressings]
+	direto = 00b o
+	indireto = 01b a,i
+	imediato = 10b #a
+	relativo - 11b a+
+[instructions]
+	08 NOP - - - 0000.0000
+	16 STR a * - 0001.00ma
+	16 LDR a * - 0010.00ma
+	16 ADD a * - 0011.00ma
+	16 OR  a * - 0100.00ma
+	16 AND a * - 0101.00ma
+	08 NOT - - - 0110.0000
+	16 JMP a * - 1000.00ma
+	16 JN  a * - 1001.00ma
+	16 JZ  a * - 1010.00ma
+	16 JC  a * - 1011.00ma
+	08 HLT - - - 1111.0000

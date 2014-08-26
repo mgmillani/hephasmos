@@ -1,0 +1,18 @@
+[machine]
+	little-endian 8 cromag
+[addressings]
+	direto = 0 o
+	indireto = 1 a,i
+[instructions]
+	08 NOP - - - 0000.0000
+	16 STR a * - 0001.000ma
+	16 LDR a * - 0010.000ma
+	16 ADD a * - 0011.000ma
+	16 OR  a * - 0100.000ma
+	16 AND a * - 0101.000ma
+	08 NOT - - - 0110.0000
+	16 JMP a * - 1000.000ma
+	16 JN  a * - 1001.000ma
+	16 JZ  a * - 1010.000ma
+	16 JC  a * - 1011.000ma
+	08 HLT - - - 1111.0000

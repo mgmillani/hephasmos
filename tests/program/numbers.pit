@@ -1,0 +1,19 @@
+org 10
+db 0deH
+db 0adh
+dab hca,hfe
+db 0
+dw 0ffh
+daw 0deadh, 0beefh
+db 0
+dab "whatever"
+db 0
+sta 5+3
+sta 5-3
+;sta -3+5
+sta 'a'+3
+sta 'b'-1
+db 0
+;db 5+3
+;db 5-3
+;db -3+5

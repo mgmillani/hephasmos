@@ -1,0 +1,17 @@
+; IS
+nop
+str 0bbh
+ldr 0bbh
+add 0bbh
+or 0bbh
+and 0bbh
+not
+jmp 0bbh
+jn 0bbh
+jz 0bbh
+jc 0bbh
+hlt
+
+; addressings
+str 0bbh
+str 0bbh,i
