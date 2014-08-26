@@ -38,8 +38,6 @@
 #include "memory.hpp"
 
 #include "defs.hpp"
-#define TRACE_OFF
-//#define ERR_OFF
 #include "debug.hpp"
 
 using namespace std;
