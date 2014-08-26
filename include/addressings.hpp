@@ -69,6 +69,11 @@ class Addressings
 
 	private:
 
+	/**
+    * recalculates addressing codes widths so that every addressing will have the same number of bits
+    */
+	void recalculateWidths(unsigned int numDigits);
+
 	map<string,t_addressing> addrs;	//associa o nome do modo de enderecamento com seus atributos
 
 };

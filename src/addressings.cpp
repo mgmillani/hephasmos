@@ -33,8 +33,8 @@ Addressings::Addressings()
 }
 
 /**
-*	carrega os modos de enderecamento que estao definidos na string config
-*/
+  *	carrega os modos de enderecamento que estao definidos na string config
+  */
 void Addressings::load(string config)
 {
 	typedef enum {STATE_INI,STATE_NAME,STATE_RELATIVE,STATE_SKIP,STATE_CODE,STATE_EXP,STATE_END} e_state;
@@ -51,9 +51,9 @@ void Addressings::load(string config)
 		char c = config[i];
 		switch(state)
 		{
-			//le espacos a esquerda
+			// reads left spaces
 			case STATE_INI:
-				//comentario
+				// comment
 				if(c==SYMB_COMMENT)
 					comment = true;
 				else if(!ISWHITESPACE(c))
@@ -62,7 +62,7 @@ void Addressings::load(string config)
 					state = STATE_NAME;
 				}
 				break;
-			//le o nome interno do modo de enderecamento
+			//reads internal addressing name
 			case STATE_NAME:
 
 				if(ISWHITESPACE(c))
@@ -71,7 +71,7 @@ void Addressings::load(string config)
 					state = STATE_RELATIVE;
 				}
 				break;
-			//determina se eh relativo ao pc ou nao
+			//whether it is relative to Program Counter or not
 			case STATE_RELATIVE:
 				if(c == '=')
 				{
@@ -92,7 +92,7 @@ void Addressings::load(string config)
 					state = STATE_CODE;
 				}
 				break;
-			//pula caracteres em branco
+			// skip whitespaces
 			case STATE_SKIP:
 				if(!ISWHITESPACE(c))
 				{
@@ -100,16 +100,19 @@ void Addressings::load(string config)
 					b = i;
 				}
 				break;
-			//le o codigo binario do modo de enderecamento
+			// reads binary code
 			case STATE_CODE:
 				if(ISWHITESPACE(c))
 				{
-					addr.code = config.substr(b,i-b);
+					Number n = Number(config.substr(b,i-b));
+					//TRACE("%s.toBin() = %s", config.substr(b,i-b).c_str() , n.toBin().c_str());
+					addr.code = Number::getMinDigits(n.toBin());
+					TRACE("%s code: %s", name.c_str(), addr.code.c_str());
 					state = STATE_SKIP;
 					nextState = STATE_EXP;
 				}
 				break;
-			//le a expressao que identifica o modo de enderecamento
+			// reads expression that identifies this addressing mode
 			case STATE_EXP:
 				if(ISWHITESPACE(c))
 				{
@@ -135,6 +138,28 @@ void Addressings::load(string config)
 	}
 
 	this->addrs[name] = addr;
+	this->recalculateWidths(addr.code.size());
+}
+
+/**
+  * recalculates addressing codes widths so that every addressing will have the same number of bits
+  */
+void Addressings::recalculateWidths(unsigned int numDigits)
+{
+	map<string,t_addressing>::iterator it;
+	for(it=this->addrs.begin() ; it!=this->addrs.end() ; it++)
+	{
+		t_addressing m = it->second;
+		if(numDigits > (m.code.size()) )
+		{
+			string leftZeroes(numDigits - m.code.size(),'0');
+			m.code = leftZeroes.append(m.code);
+		}
+
+		string name = it->first;
+		this->addrs[name] = m;
+		//TRACE("addressing %s = %s",name.c_str() , m.code.c_str());
+	}
 }
 
 /**
