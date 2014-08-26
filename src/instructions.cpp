@@ -343,6 +343,7 @@ unsigned int Instructions::assemble(string mnemonic, string operandsStr,Memory *
   * size indica quantos bits o resultado deve ter
   * pos determina a posicao atual do Program Counter
   * a string retornanda contera somente 0s e 1s e sera terminada por um 'b'
+  * TODO: every operand should be represented as a binary number uniformly
   */
 string replaceOperands(string format,list<t_operand> operands,unsigned int size, unsigned int pos)
 {
@@ -438,11 +439,12 @@ string replaceOperands(string format,list<t_operand> operands,unsigned int size,
 				{
 					op = operand.getNextOperand(TYPE_ADDRESSING);
 					number = op.addressingCode;
+					TRACE("Addressing code: %s", op.addressingCode.c_str());
 					//copia o valor
 					unsigned int i;
-					for(i=0 ; (i+1)<number.size() ; i++)
+					for(i=0 ; i<number.size() ; i++)
 						result[w++] = number[i];
-
+					//TRACE("result: %s", result.c_str());
 					switch(tolower(c))
 					{
 						case REGISTER: state = STATE_REGISTER; break;
@@ -495,7 +497,10 @@ string replaceOperands(string format,list<t_operand> operands,unsigned int size,
 				if(type == TYPE_ADDRESS || type == TYPE_REGISTER)
 					number = op.value;
 				else //if(type == TYPE_ADDRESSING)
+				{
 					number = op.addressingCode;
+					TRACE("Addressing: %s", number.c_str());
+				}
 
 				//foi informado o tamanho do operando
 				if(c=='(')
@@ -517,7 +522,7 @@ string replaceOperands(string format,list<t_operand> operands,unsigned int size,
 					}
 					//caso contrario, escreve o valor
 					else
-						for(unsigned int k=0 ; k<number.size()-1 ; k++)
+						for(unsigned int k=0 ; k<number.size() ; k++)
 							result[w++] = number[k];
 					//determina o proximo estado
 					switch(tolower(c))
@@ -535,15 +540,17 @@ string replaceOperands(string format,list<t_operand> operands,unsigned int size,
 			//escreve o operando (esta em number), usando exatamente value bits
 			case STATE_W_OPERAND:
 				{
-					//propaga o sinal, se necessario
+					// propagates sign when necessary
+					TRACE("result: %s", result.c_str());
 					int k;
 					for(k=0 ; k<(int)(value-number.size()+1) ; k++)
-						result[w++] = op.value[0];
+						result[w++] = number[0];
 					//trunca o numero, escrevendo somente os bits menos significativos
-					for(k = value-k ; k<(int)(number.size()-1) ; k++)
+					for(k = value-k ; k<(int)(number.size()) ; k++)
 					{
-						result[w++] = op.value[k];
+						result[w++] = number[k];
 					}
+					TRACE("result: %s", result.c_str());
 				}
 				//determina o proximo estado
 				switch(tolower(c))
