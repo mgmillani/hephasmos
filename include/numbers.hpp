@@ -46,7 +46,7 @@ class Number
 
 	/**
 	  *	converts a number to an int
-	  *	if it is too big, it will be truncated, returning only the least-significative bits
+	  *	if it is too big, it will be truncated, returning only the least-significant bits
 	  * the type is given by the last character
 	  * b/B - binary
 	  * d/D - decimal
