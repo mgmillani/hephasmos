@@ -58,17 +58,17 @@ void Registers::load(string config)
 
 	this->regs[r.name] = r;
 
-	this->adjustRegistersIndexes();
+	this->adjustRegistersIndexes(r.index.size()-1);
 
 }
 
 /**
   * garante que todos os registradores possuam o numero certo de digitos
   */
-void Registers::adjustRegistersIndexes()
+void Registers::adjustRegistersIndexes(unsigned int numDigits)
 {
 	map<string,t_register>::iterator it;
-	unsigned int numDigits = floor(log10((double)this->regs.size())/LOG102)+1;
+	//unsigned int numDigits = floor(log10((double)this->regs.size())/LOG102)+1;
 	for(it=this->regs.begin() ; it!=this->regs.end() ; it++)
 	{
 		//garante que o indice do registrador possui o numero correto de digitos

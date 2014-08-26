@@ -47,7 +47,7 @@ class	Registers
 	/**
     * garante que todos os registradores possuam o numero certo de digitos
     */
-	void adjustRegistersIndexes();
+	void adjustRegistersIndexes(unsigned int numDigits);
 
 	/**
 	  *	retorna o numero do registrador caso ele exista,
