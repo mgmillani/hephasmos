@@ -1,0 +1,8 @@
+Line | Label                                                                 | Value
+-----+-----------------------------------------------------------------------+--------
+1    | LABEL1                                                                | 0
+3    | ANOTHERLABEL                                                          | 12
+5    | AVERYLONGLABELWITHALOTOFCHARACTERSBUTTHATSHOULDWORKWITHOUTANYPROBLEMS | 24
+7    | HA                                                                    | 36
+9    | AH                                                                    | 48
+-----+-----------------------------------------------------------------------+--------

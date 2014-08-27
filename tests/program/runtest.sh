@@ -11,8 +11,8 @@ assemble(){
 	hephasmos --input "$IFILE" --machine "$MACHINE" --messages asmmessages --output "$FILEN.mem" --type Mecaria0 --symbols "$FILEN.sym"
 }
 
-files=(ahmes.ahm cromag.cmg neander.nea pericles.per pitagoras.pit queops.que ramses.rhm reg.reg volta.vlt numbers.pit)
-machines=(ahmes cromag neander pericles pitagoras queops ramses reg volta pitagoras)
+files=(ahmes.ahm cromag.cmg neander.nea pericles.per pitagoras.pit queops.que ramses.rhm reg.reg volta.vlt numbers.pit labels.que)
+machines=(ahmes cromag neander pericles pitagoras queops ramses reg volta pitagoras queops)
 
 for ((i=0 ; i < ${#files[@]} ; i++))
 do
