@@ -392,23 +392,74 @@ void Assembler::createBinaryV3(FILE *fl,Memory *memory)
   */
 void Assembler::createSymTable(FILE *fl)
 {
-	//determina a largura da maior label (em caracteres)
-	list<t_label> lst;
+	string lineNumber("Line");
+	string labelName("Label");
+	string labelValue("Value");
+	// calculates the size of the largest label
+	list<t_label> lst = this->labels.copy();
 	list<t_label>::iterator it;
-	unsigned int largest = 0;
+	unsigned int largestName = labelName.size();
+	unsigned int largestPos = pow(10, labelValue.size())-1;
+	unsigned int largestLine = pow(10, lineNumber.size())-1;
 	for(it=lst.begin() ; it!=lst.end() ; it++)
 	{
-		if(it->name.size() > largest)
-			largest = it->name.size();
+		if(it->name.size() > largestName)
+			largestName = it->name.size();
+		if(it->pos > largestPos)
+			largestPos = it->pos;
+		if(it->line > largestLine)
+			largestLine = it->line;
 	}
+	largestLine = ceil(log10(largestLine));
+	largestPos = ceil(log10(largestPos));
 
-	//unsigned int margin = 8;
+	// header
+	unsigned int numSpaces;
+	string spaces;
+	fprintf(fl,"%s", lineNumber.c_str());
+	numSpaces = largestLine - lineNumber.size();
+	spaces = string(numSpaces, ' ');
+	fprintf(fl, "%s | ",spaces.c_str());
+
+	fprintf(fl,"%s", labelName.c_str());
+	numSpaces = largestName - labelName.size();
+	spaces = string(numSpaces, ' ');
+	fprintf(fl, "%s | ",spaces.c_str());
+	fprintf(fl,"%s\n", labelValue.c_str());
+
+	// separator
+	spaces = string(largestLine + 1, '-');
+	fprintf(fl, "%s+-",spaces.c_str());
+	spaces = string(largestName + 1, '-');
+	fprintf(fl, "%s+-",spaces.c_str());
+	spaces = string(largestPos + 1, '-');
+	fprintf(fl, "%s-",spaces.c_str());
+	fprintf(fl,"\n");
 
 	for(it=lst.begin() ; it!=lst.end() ; it++)
 	{
+		// line number
+		fprintf(fl,"%u",it->line);
+		numSpaces = largestLine - ceil(log10(it->line+1));
+		spaces = string(numSpaces, ' ');
+		fprintf(fl, "%s | ",spaces.c_str());
+
 		fprintf(fl,"%s",it->name.c_str());
-		fprintf(fl,"\t%u\n",it->pos);
+		numSpaces = largestName - it->name.size();
+		spaces = string(numSpaces, ' ');
+		fprintf(fl,"%s | ",spaces.c_str());
+
+		fprintf(fl,"%u\n",it->pos);
 	}
+
+	// separator
+	spaces = string(largestLine + 1, '-');
+	fprintf(fl, "%s+-",spaces.c_str());
+	spaces = string(largestName + 1, '-');
+	fprintf(fl, "%s+-",spaces.c_str());
+	spaces = string(largestPos + 1, '-');
+	fprintf(fl, "%s-",spaces.c_str());
+	fprintf(fl,"\n");
 
 }
 
