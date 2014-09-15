@@ -45,6 +45,11 @@ class Operands
 	  */
 	t_operand getOperandIndex(e_type type, unsigned int index);
 
+	/**
+	  * resolves the matched operand, solving any operations and writing the results in op
+	  */
+	static void solveMatch(struct s_match m, t_operand *op, Labels labels, t_status *status);
+
 	private:
 	list<t_operand> operands;
 	list<t_operand>::iterator itMode;

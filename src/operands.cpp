@@ -5,9 +5,8 @@
 #include "operands.hpp"
 #include "labels.hpp"
 #include "numbers.hpp"
+#include "expression.hpp"
 
-#define TRACE_OFF
-#define ERR_OFF
 #include "debug.hpp"
 #include "defs.hpp"
 
@@ -18,7 +17,7 @@ using namespace std;
   */
 void Operands::solveOperation(t_operand *op,Labels labels,t_status *status)
 {
-	if(op->operation == "")
+	if(op->operation.compare("") == 0)
 		return;
 
 	bool opPotentialLabel = false;
@@ -46,8 +45,7 @@ void Operands::solveOperation(t_operand *op,Labels labels,t_status *status)
 		Number result(op->value);
 		result.operate(op->operation[0],*operand);
 		op->value = result.toBin();
-
-		//delete operand;
+		delete operand;
 	}
 	else
 	{
@@ -96,7 +94,6 @@ t_operand Operands::getNextOperand(e_type type)
 
 			for(this->itAddr=this->operands.begin() ; this->itAddr!=this->operands.end() ; this->itAddr++)
 			{
-				TRACE("Ta hell?\n");
 				e_type typeFound = this->itAddr->type;
 				if(isSubtype(typeFound,type))
 					return *this->itAddr;
@@ -105,7 +102,7 @@ t_operand Operands::getNextOperand(e_type type)
 		case TYPE_REGISTER:
 			while(this->itReg != this->operands.end())
 			{
-				if(this->itAddr->type == type)
+				if(this->itReg->type == type)
 				{
 					t_operand r = *this->itReg;
 					this->itReg++;
@@ -119,10 +116,32 @@ t_operand Operands::getNextOperand(e_type type)
 			break;
 	}
 
-	ERR("Not found: %d\n",type);
+	TRACE("Not found: %d\n",type);
 	throw(eOperandNotFound);
 	return this->operands.front();
 
+}
+
+void Operands::solveMatch(struct s_match m, struct s_operand *op, Labels labels, struct s_status *status)
+{
+	op->name = m.element;
+	op->operation = m.operation;
+	op->aritOperand = m.operand;
+	op->aritOperandType = TYPE_NONE;
+	op->type = TYPE_LABEL;
+
+	// if the operand is a label
+	if((m.subtype[TYPE_ADDRESS] || m.subtype[TYPE_LABEL]) && labels.exists(op->name))
+		op->value = Number::toBin(labels.value(op->name));
+	// if not, it might be a number
+	else if (Number::exists(op->name))
+		op->value == Number::toBin(op->name);
+	else
+		throw(eUndefinedLabel);
+
+	// checks if there is an operation
+	if(op->operation.compare("") != 0)
+		Operands::solveOperation(op, labels, status);
 }
 
 /**
