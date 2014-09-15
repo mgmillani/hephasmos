@@ -130,6 +130,11 @@ void Assembler::init(FILE *fl,Messenger messenger)
 		}
 		free(data);
 	}
+
+	if(TRACE_ON)
+	{
+		this->print(stderr);
+	}
 }
 
 /**
@@ -252,7 +257,7 @@ unsigned int Assembler::assembleLine(string line, Memory *memory,unsigned int by
 		return byte;
 	if(this->inst.isInstruction(mnemonic))
 	{
-		TRACE("Instruction: %s(%s)\n",mnemonic.c_str(),operands.c_str());
+		TRACE("Instruction: %s(%s)",mnemonic.c_str(),operands.c_str());
 		try
 		{
 			byte+=this->inst.assemble(mnemonic,operands,memory,byte,&this->pendecies,this->addr,this->labels,this->regs,status);
