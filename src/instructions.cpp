@@ -166,10 +166,10 @@ unsigned int Instructions::assemble(string mnemonic, string operandsStr,Memory *
 			continue;
 		}
 
-		//verifica se as variaveis sao do tipo adequado
+		// checks types of variables
 		list<t_match>::iterator imatch;
 
-		//limpa as listas de operandos
+		// clears operand list
 		operands = list<t_operand>();
 
 		Number number;
@@ -226,7 +226,7 @@ unsigned int Instructions::assemble(string mnemonic, string operandsStr,Memory *
 
 
 			//se houver uma operacao, executa-a
-			if(m.operation != "" && opOk)
+			if(m.operation.compare("") != 0 && opOk)
 			{
 				try
 				{
