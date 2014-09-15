@@ -30,6 +30,8 @@
 #include "labels.hpp"
 #include "memory.hpp"
 #include "defs.hpp"
+#include "expression.hpp"
+#include "multiExpression.hpp"
 
 #include "debug.hpp"
 
@@ -40,15 +42,36 @@ using namespace std;
 */
 unsigned int Directives::execute(string directive, string operands, Labels labels, stack<t_pendency> *pendencies, Memory *memory,unsigned int currentByte,struct s_status *status)
 {
+	Expression opExp("a");
+	list<Expression> expressions;
+	expressions.push_back(opExp);
+	MultiExpression opRepeat(expressions, "[n]a");
+	MultiExpression opPlain(expressions, "a");
+
 	if(!Directives::isDirective(directive))
 		throw eUnknownMnemonic;
 	Number n;
 	unsigned int size = 0;
 	list<string> ops = stringSplitCharProtected(operands," ,\t","['\"","]'\"",'\\');
-	//muda o proximo byte par amontagem
+	// org just changes assembling position
 	if(stringCaselessCompare(directive,"org")==0)
 	{
-		//o operando deve ser um numero
+		// only accepts a number
+		list<t_match > matches = opPlain.findAllSub(operands);
+		t_match m = *matches.begin();
+		t_operand op;
+		op.name = m.element;
+		op.operation = m.operation;
+		op.aritOperand = m.operand;
+		op.aritOperandType = TYPE_NONE;
+		op.type = TYPE_LABEL;
+		op.value = Number::toBin(op.name);
+		// if there is an operation
+		if(op.operation.compare("") != 0)
+		{
+			Operands::solveOperation(&op, labels, status);
+			return n.toInt(op.value);
+		}
 		return n.toInt(operands);
 	}
 	else if(stringCaselessCompare(directive,"db")==0)
@@ -72,15 +95,74 @@ unsigned int Directives::execute(string directive, string operands, Labels label
 
 	for(ot=ops.begin() ; ot!=ops.end() ; ot++)
 	{
-		unsigned int value,repeat;
+		unsigned int value,repeats;
+		bool repeat = false;
+		bool pendency = false;
+		// checks if it's a plain value
+		list<t_match > matches;
+		try
+		{
+			matches = opPlain.findAllSub(*ot);
+		}
+		// if it isn't, it might be a repetition of values
+		catch (e_exception e)
+		{
+			matches = opRepeat.findAllSub(*ot); //throws an exception on failure
+			repeat = true;
+		}
+
+		if( !repeat)
+		{
+			// solves the value
+			t_match m = *matches.begin();
+			t_operand op;
+			try
+			{
+				Operands::solveMatch(m, &op, labels, status);
+				memory->writeNumber(op.value, currentByte, size);
+				currentByte += size;
+			}
+			catch( e_exception e )
+			{
+				pendency = true;
+			}
+
+		}
+		// the value has to be repeated a certain amount of times
+		else
+		{
+			list<t_match>::iterator it = matches.begin();
+			t_match mRepeat = *(it++);
+			t_match mValue = *it;
+
+			t_operand opRepeat;
+			Operands::solveMatch(mRepeat, &opRepeat, labels, status);
+			repeats = Number::toInt(opRepeat.value);
+			try
+			{
+				Operands::solveMatch(mValue, &opRepeat, labels, status);
+			}
+			catch( e_exception e )
+			{
+				pendency = true;
+			}
+
+			if( ! pendency)
+			{
+				for( ; repeats>0 ; repeats--, currentByte += size)
+					memory->writeNumber(opRepeat.value, currentByte, size);
+			}
+		}
+
+
 		//se existir uma label com esse nome, usa seu valor
-		if(labels.exists(*ot))
+		/*if(labels.exists(*ot))
 			memory->writeNumber(Number::toBin(labels.value(*ot)),currentByte,size);
 		else if(Number::exists(*ot))
 			memory->writeNumber(Number::toBin(*ot),currentByte,size);
 		else if(Number::isString(*ot))
 			currentByte += memory->writeString(*ot,currentByte,size,-1) - size;
-		else if(Directives::isRepeat(*ot,&repeat,&value))
+		else if(Directives::isRepeat(*ot,&repeats,&value))
 		{
 			//cria o array com os valores certos
 			unsigned char array[size];
@@ -93,11 +175,11 @@ unsigned int Directives::execute(string directive, string operands, Labels label
 				array[i] = v&255;
 				v >>= 8;
 			}
-			memory->writeArrayRepeat(array,size,currentByte,repeat);
-			currentByte += (repeat-1)*size;
-		}
+			memory->writeArrayRepeat(array,size,currentByte,repeats);
+			currentByte += (repeats-1)*size;
+		}*/
 		//se nao for nada conhecido, adiciona uma pendencia
-		else
+		if(pendency)
 		{
 			t_pendency p;
 			p.byte = currentByte;
