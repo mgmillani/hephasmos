@@ -7,7 +7,6 @@
 #include "multiExpression.hpp"
 
 #include "defs.hpp"
-#define TRACE_OFF
 #define ERR_OFF
 #include "debug.hpp"
 
@@ -114,14 +113,6 @@
 		unsigned int i,t;
 		list<t_match> vars;
 
-		/*
-		for(i=0 ; i<what.size() ; i++)
-		{
-			string whatStr = what[i];
-			ERR("What[%u]: %s\n",i,whatStr.c_str());
-		}
-		*/
-
 		for(t=0,i=2 ; i<what.size() ; t++,i+=this->numSub*3+1)
 		{
 			// type of the element on the top expression
@@ -140,11 +131,7 @@
 					m.operand = what[i+k+2];
 
 					e_type subtype = varToNum(this->subvars[j]);
-					ERR("Subtype0: %d\n",subtype);
 					subtype = mostStrictType(type,subtype);
-					ERR("Pos: %d\n",t);
-					ERR("Type: %d\n",type);
-					ERR("Subtype1: %d\n",subtype);
 					if(subtype != TYPE_NONE)
 						m.subtype[subtype] = 1;
 					m.indexes.push_back(j);
