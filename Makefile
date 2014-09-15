@@ -1,6 +1,6 @@
 INSTALLDIR=$(HOME)/bin
 CC = g++
-CFLAGS = -Wall -Wextra -I$(INC)
+CFLAGS = -Wall -Wextra -I$(INC) -D ERR_ON=1
 SRC = src
 OBJ = obj
 BIN = bin
@@ -14,10 +14,10 @@ all: release obj
 obj:
 	mkdir obj
 
-release: CFLAGS += -s -O2 -D TRACE_OFF
+release: CFLAGS += -s -O2 -D TRACE_ON=0
 release: assembler
 
-debug: CFLAGS += -g
+debug: CFLAGS += -g -D TRACE_ON=1
 debug: assembler
 
 install: all
