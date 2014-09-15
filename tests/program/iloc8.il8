@@ -1,0 +1,50 @@
+; Instruction set
+nop
+add  r1 r2 r3
+sub  r1 r2 r3
+mult r1 r2 r3
+div  r1 r2 r3
+
+addi  r1 0abh r3
+subi  r1 0abh r3
+multi r1 0abh r3
+divi  r1 0abh r3
+
+lshift  r1 r2 r3
+lshifti r1 0abh r3
+rshift  r1 r2 r3
+rshifti r1 0abh r3
+
+load   r1   r2
+loadi  0abh r1
+loadai r1   0abh r2
+loadao r1   r2   r3
+
+cload   r1 r2
+cloadai r1 r2 0abh
+cloadao r1 r2 r3
+
+store   r1 r2
+storeai r1 r2 0abh
+storeao r1 r2 r3
+
+cstore   r1 r2
+cstoreai r1 r2 0abh
+cstoreao r1 r2 r3
+
+here:
+br here
+there:
+cbr r1 here there
+
+cmp_lt r1 r2 r3
+cmp_le r1 r2 r3
+cmp_eq r1 r2 r3
+cmp_ne r1 r2 r3
+cmp_ge r1 r2 r3
+cmp_gt r1 r2 r3
+
+i2i r1 r2
+c2c r1 r2
+c2i r1 r2
+i2c r1 r2

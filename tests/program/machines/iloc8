@@ -1,0 +1,62 @@
+[registers]
+	r0 0
+	r1 1
+	r2 2
+	r3 3
+	r4 4
+	r5 5
+	r6 6
+	r7 7
+[machine]
+	big-endian 8 iloc8
+[addressings]
+	direto = 00b o
+[instructions]
+	08 NOP  -   - - 0000.0000
+	
+	16 ADD  rrr * - 0001.00rrr
+	16 SUB  rrr * - 0001.01rrr
+	16 MULT rrr * - 0001.10rrr
+	16 DIV  rrr * - 0001.11rrr
+
+	24 ADDI  rar * - 0010.00rra
+	24 SUBI  rar * - 0010.01rra
+	24 MULTI rar * - 0010.10rra
+	24 DIVI  rar * - 0010.11rra
+
+	16 lSHIFT  rrr * - 0011.00rrr
+	24 lSHIFTI rar * - 0011.01rra
+	16 rSHIFT  rrr * - 0011.10rrr
+	24 rSHIFTI rar * - 0011.11rra
+
+	24 LOAD   rr  * - 0100.00rr
+	16 LOADI  ar  * - 0100.01ra
+	24 LOADAI rar * - 0100.10rra
+	16 LOADAO rrr * - 0100.11rrr
+
+	16 cLOAD   rr  * - 0101.00rr
+	24 cLOADAI rra * - 0101.01rra
+	16 cLOADAO rrr * - 0101.10rrr
+
+	16 STORE   rr  * - 0110.00rr
+	24 STOREAI rra * - 0110.01rra
+	16 STOREAO rrr * - 0110.10rrr
+
+	16 cSTORE   rr  * - 0111.00rr
+	24 cSTOREAI rra * - 0111.01rra
+	16 cSTOREAO rrr * - 0111.10rrr
+
+	16 BR   l   *  - 1000.00l
+	32 CBR  rll *  - 1000.01rll
+
+	16 cmp_LT rrr * - 1001.00rrr
+	16 cmp_LE rrr * - 1001.01rrr
+	16 cmp_EQ rrr * - 1001.10rrr
+	16 cmp_NE rrr * - 1001.11rrr
+	16 cmp_GE rrr * - 1010.00rrr
+	16 cmp_GT rrr * - 1010.01rrr
+
+	16 i2i rr * - 1011.00rr
+	16 c2c rr * - 1011.01rr
+	16 c2i rr * - 1011.10rr
+	16 i2c rr * - 1011.11rr
