@@ -1,4 +1,5 @@
 org 10
+org 5+3
 db 0deH
 db 0adh
 dab hca,hfe
@@ -14,6 +15,6 @@ sta 5-3
 sta 'a'+3
 sta 'b'-1
 db 0
-;db 5+3
-;db 5-3
+db 5+3
+db 5-3
 ;db -3+5
